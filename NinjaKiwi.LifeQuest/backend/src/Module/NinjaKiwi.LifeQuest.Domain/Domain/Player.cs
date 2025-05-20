@@ -1,10 +1,8 @@
 ﻿using Shesha.Domain.Attributes;
 using Shesha.Domain;
 using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using Shesha.Paths.Domain;
 
-namespace Shesha.Player.Domain.Domain
+namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
     /// <summary>
     /// A person within the application that is a Player
@@ -12,31 +10,39 @@ namespace Shesha.Player.Domain.Domain
     [Entity(TypeShortAlias = "LifQu.Player")]
     public class Player : Person
     {
-        /// <summary>
-        /// The experience points of the player
-        /// </summary>
-        public virtual double Xp { get; set; }
+
+
+
 
         /// <summary>
-        /// The level of the player
+        /// The player's experience points
         /// </summary>
-        public virtual int Level { get; set; }
+        public virtual double? Xp { get; set; }
 
         /// <summary>
-        /// URL or identifier for the player's avatar image
+        /// The player's level
+        /// </summary>
+        public virtual int? Level { get; set; }
+
+        /// <summary>
+        /// The player's avatar image URL
         /// </summary>
         public virtual string Avatar { get; set; }
 
         /// <summary>
-        /// The ID of the associated Path (e.g. FitnessPath, HealthPath)
+        /// The path selected by the player
         /// </summary>
-        public virtual Guid? PathId { get; set; }
-        public virtual Path SelectedPath { get; set; } // No alias needed anymore
-
 
         /// <summary>
-        /// A description of the player's avatar
+        /// Navigation property to the Path entity
+        /// </summary>
+
+        /// <summary>
+        /// The player's avatar description
         /// </summary>
         public virtual string AvatarDescription { get; set; }
+
+
+
     }
 }

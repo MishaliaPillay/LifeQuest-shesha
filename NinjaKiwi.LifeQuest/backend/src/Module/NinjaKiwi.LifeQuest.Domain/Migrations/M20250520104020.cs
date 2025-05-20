@@ -1,10 +1,10 @@
 ﻿using FluentMigrator;
 using Shesha.FluentMigrator;
 
-namespace Shesha.Paths.Domain.Migrations
+namespace NinjaKiwi.LifeQuest.Domain.Migrations
 {
-    [Migration(20240520104020)]
-    public class M20240520104020 : Migration
+    [Migration(20250520104020)]
+    public class M20250520104020 : Migration
     {
         public override void Up()
         {

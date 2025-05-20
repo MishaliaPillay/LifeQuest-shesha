@@ -1,9 +1,12 @@
-﻿using Shesha.Domain.Attributes;
-using Shesha.Domain;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Abp.Domain.Entities.Auditing;
+using Shesha.Domain.Attributes;
 
-namespace Shesha.Paths.Domain
+namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
     /// <summary>
     /// Represents a Path in LifeQuest ( FitnessPath, HealthPath)
