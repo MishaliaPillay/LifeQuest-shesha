@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<class id="37172a60-9e6f-41c9-ac5c-5f1c7725be09" type="Diagram" typeId="4d66fecd-e9b8-436f-aa50-c59040ad0879">
+  <name>Default Diagram</name>
+  <display>Default Diagram</display>
+  <isAbstract>false</isAbstract>
+  <genericTypes />
+  <isMapped>false</isMapped>
+  <parentFolderId>a2de0b08-7958-4e33-8e0e-04a8ad3f08d9</parentFolderId>
+  <packageId>a2de0b08-7958-4e33-8e0e-04a8ad3f08d9</packageId>
+  <packageName>NinjaKiwi.LifeQuest</packageName>
+  <diagram>
+    <targetPackageId>a2de0b08-7958-4e33-8e0e-04a8ad3f08d9</targetPackageId>
+  </diagram>
+  <stereotypes>
+    <stereotype stereotypeDefinitionId="dfd05ebf-191e-4a44-a97b-0748916f6654" name="Prefix Setting">
+      <addedByDefault>true</addedByDefault>
+      <definitionPackageName>Boxfusion.Modules.Domain</definitionPackageName>
+      <definitionPackageId>adb17c92-23cd-47f7-beeb-99512b09467b</definitionPackageId>
+      <properties>
+        <property name="46e14c52-85ab-4da6-959d-2a0163a778ea" display="Table Prefix" isActive="true" />
+      </properties>
+    </stereotype>
+  </stereotypes>
+  <metadata />
+  <childElements />
+</class>
