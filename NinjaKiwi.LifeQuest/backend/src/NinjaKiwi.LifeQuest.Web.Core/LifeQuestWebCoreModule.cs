@@ -12,6 +12,7 @@ using Shesha.Authentication.JwtBearer;
 using Shesha.Authorization;
 using Shesha.Configuration;
 using Shesha.Configuration.Startup;
+using Shesha.Elmah;
 using Shesha.Import;
 using Shesha.Sms.Clickatell;
 using Shesha.Web.FormsDesigner;
@@ -31,7 +32,8 @@ namespace NinjaKiwi.LifeQuest
         typeof(SheshaImportModule),
         typeof(SheshaClickatellModule),
         typeof(LifeQuestModule),
-        typeof(LifeQuestApplicationModule)
+        typeof(LifeQuestApplicationModule),
+        typeof(SheshaElmahModule)
 	 )]
     public class LifeQuestWebCoreModule : AbpModule
     {

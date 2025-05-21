@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Abp.UI;
@@ -53,24 +54,37 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                 };
                 request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
 
+                // Add logging to see what's being sent
+                Logger.Debug($"Sending request to OpenRouter: {JsonSerializer.Serialize(requestBody)}");
+
                 var response = await client.SendAsync(request);
-                response.EnsureSuccessStatusCode();
-
                 var jsonResponse = await response.Content.ReadAsStringAsync();
-                Logger.Debug($"AI Response: {jsonResponse}");
 
-                var activityDto = ParseActivityDto(jsonResponse);
-                if (activityDto == null)
-                    throw new UserFriendlyException("Failed to parse AI response.");
-                if (string.IsNullOrWhiteSpace(activityDto.Category) ||
-    string.IsNullOrWhiteSpace(activityDto.Description) ||
-    string.IsNullOrWhiteSpace(activityDto.Duration) ||
-    activityDto.Calories <= 0)
+                Logger.Debug($"Raw OpenRouter response: {jsonResponse}");
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    Logger.Warn("Incomplete AI response parsed");
-                    throw new UserFriendlyException("Incomplete or invalid AI response.");
+                    Logger.Error($"OpenRouter API failed with status {response.StatusCode}: {jsonResponse}");
+                    throw new UserFriendlyException($"AI service returned error: {response.StatusCode}");
                 }
 
+                var activityDto = ParseActivityTypeFromResponse(jsonResponse);
+
+                if (activityDto == null)
+                {
+                    Logger.Error("Failed to parse activity data from response");
+                    throw new UserFriendlyException("Could not parse AI response");
+                }
+
+                // Validate the extracted data
+                if (string.IsNullOrWhiteSpace(activityDto.Category) ||
+                    string.IsNullOrWhiteSpace(activityDto.Description) ||
+                    string.IsNullOrWhiteSpace(activityDto.Duration) ||
+                    activityDto.Calories <= 0)
+                {
+                    Logger.Warn($"Incomplete AI response parsed: {JsonSerializer.Serialize(activityDto)}");
+                    throw new UserFriendlyException("Incomplete or invalid AI response");
+                }
 
                 var entity = new ActivityType
                 {
@@ -81,15 +95,10 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                     Calories = activityDto.Calories
                 };
 
-                await _activityTypeRepo.InsertAsync(entity);
                 Logger.Debug($"Inserting ActivityType: {JsonSerializer.Serialize(entity)}");
+                await _activityTypeRepo.InsertAsync(entity);
 
                 return await MapToDynamicDtoAsync<ActivityType, Guid>(entity);
-            }
-            catch (JsonException jex)
-            {
-                Logger.Error("JSON parsing failed", jex);
-                throw new UserFriendlyException("Invalid response format from AI.");
             }
             catch (Exception ex)
             {
@@ -112,8 +121,7 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             if (input.AvailableEquipment != null && input.AvailableEquipment.Length > 0)
                 sb.AppendLine($"- Equipment: {string.Join(", ", input.AvailableEquipment)}");
 
-
-            sb.AppendLine("\nReturn only raw JSON in the following format:\n");
+            sb.AppendLine("\nReturn only raw JSON in the following format without any additional text or explanations:\n");
             sb.AppendLine("{");
             sb.AppendLine("  \"category\": \"string\",");
             sb.AppendLine("  \"description\": \"string\",");
@@ -124,22 +132,73 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             return sb.ToString();
         }
 
-        private CreateActivityTypeDto ParseActivityDto(string aiResponse)
+        private CreateActivityTypeDto ParseActivityTypeFromResponse(string jsonResponse)
         {
-            var json = ExtractJsonBlock(aiResponse);
-            return JsonSerializer.Deserialize<CreateActivityTypeDto>(json, new JsonSerializerOptions
+            try
             {
-                PropertyNameCaseInsensitive = true
-            });
+                // First try to parse the full response to extract the content
+                using var responseDoc = JsonDocument.Parse(jsonResponse);
+
+                // Extract the message content from OpenRouter API response
+                if (responseDoc.RootElement.TryGetProperty("choices", out var choices) &&
+                    choices.GetArrayLength() > 0)
+                {
+                    var firstChoice = choices[0];
+                    if (firstChoice.TryGetProperty("message", out var message) &&
+                        message.TryGetProperty("content", out var content))
+                    {
+                        var contentStr = content.GetString();
+                        Logger.Debug($"Extracted message content: {contentStr}");
+
+                        // Extract JSON from the content
+                        var jsonContent = ExtractJsonBlock(contentStr);
+                        if (!string.IsNullOrEmpty(jsonContent))
+                        {
+                            // Parse the extracted JSON
+                            return JsonSerializer.Deserialize<CreateActivityTypeDto>(jsonContent, new JsonSerializerOptions
+                            {
+                                PropertyNameCaseInsensitive = true
+                            });
+                        }
+                    }
+                }
+
+                Logger.Error($"Failed to extract JSON from response structure: {jsonResponse}");
+                return null;
+            }
+            catch (JsonException jex)
+            {
+                Logger.Error($"JSON parsing failed: {jex.Message}", jex);
+                return null;
+            }
         }
 
         private string ExtractJsonBlock(string content)
         {
-            var start = content.IndexOf('{');
-            var end = content.LastIndexOf('}');
-            Logger.Debug($"Extracted JSON: {content}");
+            try
+            {
+                // Try to find JSON content between curly braces
+                var start = content.IndexOf('{');
+                var end = content.LastIndexOf('}');
 
-            return (start >= 0 && end > start) ? content.Substring(start, end - start + 1) : content;
+                if (start >= 0 && end > start)
+                {
+                    var jsonBlock = content.Substring(start, end - start + 1);
+                    Logger.Debug($"Extracted JSON block: {jsonBlock}");
+
+                    // Validate that this is actually valid JSON
+                    using var _ = JsonDocument.Parse(jsonBlock);
+                    return jsonBlock;
+                }
+
+                Logger.Error($"Could not find valid JSON block in content: {content}");
+                return null;
+            }
+            catch (JsonException jex)
+            {
+                Logger.Error($"Failed to extract JSON block: {jex.Message}", jex);
+                return null;
+            }
         }
     }
 }
