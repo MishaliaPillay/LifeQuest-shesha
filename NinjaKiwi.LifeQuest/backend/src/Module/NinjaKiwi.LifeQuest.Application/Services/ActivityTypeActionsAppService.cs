@@ -34,7 +34,7 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             try
             {
                 var prompt = BuildPrompt(input);
-                var apiKey = "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";
+                var apiKey = "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";
                 //Environment.GetEnvironmentVariable("OPENROUTER_API_KEY");
 
                 if (string.IsNullOrWhiteSpace(apiKey))
@@ -62,6 +62,15 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                 var activityDto = ParseActivityDto(jsonResponse);
                 if (activityDto == null)
                     throw new UserFriendlyException("Failed to parse AI response.");
+                if (string.IsNullOrWhiteSpace(activityDto.Category) ||
+    string.IsNullOrWhiteSpace(activityDto.Description) ||
+    string.IsNullOrWhiteSpace(activityDto.Duration) ||
+    activityDto.Calories <= 0)
+                {
+                    Logger.Warn("Incomplete AI response parsed");
+                    throw new UserFriendlyException("Incomplete or invalid AI response.");
+                }
+
 
                 var entity = new ActivityType
                 {
@@ -73,6 +82,7 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                 };
 
                 await _activityTypeRepo.InsertAsync(entity);
+                Logger.Debug($"Inserting ActivityType: {JsonSerializer.Serialize(entity)}");
 
                 return await MapToDynamicDtoAsync<ActivityType, Guid>(entity);
             }
@@ -127,6 +137,8 @@ namespace NinjaKiwi.LifeQuest.Common.Services
         {
             var start = content.IndexOf('{');
             var end = content.LastIndexOf('}');
+            Logger.Debug($"Extracted JSON: {content}");
+
             return (start >= 0 && end > start) ? content.Substring(start, end - start + 1) : content;
         }
     }
