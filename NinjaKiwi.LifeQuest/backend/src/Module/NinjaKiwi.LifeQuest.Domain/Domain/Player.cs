@@ -15,13 +15,13 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         /// <summary>
         /// The player's experience points
         /// </summary>
-        [Column("LifQu_Xp")] 
+        [Column("LifQu_Xp")]
         public virtual double? Xp { get; set; }
 
         /// <summary>
         /// The player's level
         /// </summary>
-        [Column("LifQu_Level")] 
+        [Column("LifQu_Level")]
         public virtual int? Level { get; set; }
 
         /// <summary>
@@ -33,14 +33,14 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         /// <summary>
         /// The player's avatar description
         /// </summary>
-        [Column("LifQu_AvatarDescription")] 
+        [Column("LifQu_AvatarDescription")]
         public virtual string AvatarDescription { get; set; }
 
         /// <summary>
         /// Navigation property to the selected Path
         /// </summary>
         [Reference]
-        [Column("LifQu_SelectedPathId")] 
+        [Column("LifQu_SelectedPathId")]
         public virtual Path SelectedPath { get; set; }
     }
 }

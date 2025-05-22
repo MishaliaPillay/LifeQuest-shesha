@@ -30,4 +30,7 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         // Navigation property to related activities
         //  public virtual IList<ActivityActivityType> Activities { get; set; } = new List<ActivityActivityType>();
     }
+
+
+
 }
