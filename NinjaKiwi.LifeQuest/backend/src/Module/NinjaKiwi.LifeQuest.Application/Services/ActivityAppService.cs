@@ -74,6 +74,53 @@ namespace NinjaKiwi.LifeQuest.Services.Activities
                 ActivityTypeIds = activity.ActivityActivityTypes.Select(x => x.ActivityTypeId).ToList()
             };
         }
+        [HttpGet, Route("api/app/activity-actions/get-by-id/{id}")]
+        public async Task<ActivityDto> GetActivityByIdAsync(Guid id)
+        {
+            var activity = await _activityRepository.GetAsync(id);
+
+            var activityDto = new ActivityDto
+            {
+                Id = activity.Id,
+                Category = activity.Category,
+                Calories = activity.Calories,
+                Description = activity.Description,
+                Duration = activity.Duration,
+                Xp = activity.Xp,
+                Level = activity.Level,
+                IsComplete = activity.IsComplete,
+                Order = activity.Order,
+                ActivityTypeIds = activity.ActivityActivityTypes?
+                    .Select(x => x.ActivityTypeId)
+                    .ToList() ?? new List<Guid>()
+            };
+
+            return activityDto;
+        }
+
+        [HttpGet, Route("api/app/activity-actions/get-all")]
+        public async Task<List<ActivityDto>> GetAllActivitiesAsync()
+        {
+            var activities = await _activityRepository.GetAllListAsync();
+
+            var activityDtos = activities.Select(activity => new ActivityDto
+            {
+                Id = activity.Id,
+                Category = activity.Category,
+                Calories = activity.Calories,
+                Description = activity.Description,
+                Duration = activity.Duration,
+                Xp = activity.Xp,
+                Level = activity.Level,
+                IsComplete = activity.IsComplete,
+                Order = activity.Order,
+                ActivityTypeIds = activity.ActivityActivityTypes?
+                    .Select(x => x.ActivityTypeId)
+                    .ToList() ?? new List<Guid>()
+            }).ToList();
+
+            return activityDtos;
+        }
 
 
     }
