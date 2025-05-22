@@ -8,7 +8,7 @@ using Shesha.Domain.Attributes;
 
 namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
-    [Entity(TypeShortAlias = "LifQu.ActivityType")]
+    [Entity(TypeShortAlias = "LifQu.ActivityTypes")]
     public class ActivityType : FullAuditedEntity<Guid>
     {  /// <summary>
        /// The category of the exercise
@@ -28,7 +28,7 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         public virtual string Duration { get; set; }
 
         // Navigation property to related activities
-        //  public virtual IList<ActivityActivityType> Activities { get; set; } = new List<ActivityActivityType>();
+        public virtual IList<ActivityActivityType> Activities { get; set; } = new List<ActivityActivityType>();
     }
 
 
