@@ -9,7 +9,7 @@ interface IProps {
 }
 
 export const NavCard: React.FC<IProps> = ({ title, url, description }) => (
-  <Card style={{ width: 400 }}>
+  <Card style={{ width: 400, color: "red" }}>
     <ArrowRightOutlined style={{ paddingBottom: "5px" }} />
     <a href={url} target="_blank">
       <h4 style={{ fontSize: "20px", color: "#1434A4" }}>{title}</h4>

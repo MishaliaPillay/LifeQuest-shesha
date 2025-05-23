@@ -9,7 +9,7 @@ import {
 } from "@shesha-io/reactjs";
 import { AppProgressBar } from "next-nprogress-bar";
 import { useTheme } from "antd-style";
-
+import { ImageScanPlugin } from "../../packages/template/src/providers/avatarPlugin/index";
 export interface IAppProviderProps {
   backendUrl: string;
 }
@@ -27,11 +27,13 @@ export const AppProvider: FC<PropsWithChildren<IAppProviderProps>> = ({
       <ShaApplicationProvider
         backendUrl={backendUrl}
         router={nextRouter}
-        noAuth={nextRouter.path?.includes('/no-auth')}
+        noAuth={nextRouter.path?.includes("/no-auth")}
       >
-        <StoredFilesProvider baseUrl={backendUrl} ownerId={""} ownerType={""}>
-          {children}
-        </StoredFilesProvider>
+        <ImageScanPlugin>
+          <StoredFilesProvider baseUrl={backendUrl} ownerId={""} ownerType={""}>
+            {children}
+          </StoredFilesProvider>
+        </ImageScanPlugin>
       </ShaApplicationProvider>
     </GlobalStateProvider>
   );

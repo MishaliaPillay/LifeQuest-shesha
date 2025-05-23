@@ -1,0 +1,125 @@
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(242, 61, 94, 0.2);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.title {
+  color: #f23d5e;
+  text-align: center;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.form {
+  margin-top: 20px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.label {
+  color: #d9328e;
+  font-weight: 600;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1.5px solid #bf3fb7;
+  font-size: 16px;
+  resize: vertical;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.textarea:focus {
+  border-color: #f23d5e;
+  outline: none;
+  box-shadow: 0 0 8px #f23d5e55;
+}
+
+.button {
+  background-color: #f23d5e;
+  border: none;
+  font-weight: 600;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+
+.button:hover,
+.button:focus {
+  background-color: #fb765c;
+}
+
+.button:disabled,
+.button[disabled] {
+  background-color: #f24141;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.previewContainer {
+  color: #bf3fb7;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.previewImage {
+  max-width: 100%;
+  max-height: 240px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(219, 59, 114, 0.3);
+  object-fit: contain;
+}
+
+.analysisContainer {
+  background-color: #f1ebeb;
+  border-radius: 12px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 6px 20px rgba(242, 61, 94, 0.6);
+  margin-top: 24px;
+}
+
+.analysisTitle {
+  color: white;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.analysisContent {
+  font-size: 16px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: #eb9d8e;
+}
+
+.disclaimer {
+  margin-top: 20px;
+}
+
+.disclaimerText {
+  color: #fbeaea;
+  font-style: italic;
+}
+
+.buttonContainer {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+}
