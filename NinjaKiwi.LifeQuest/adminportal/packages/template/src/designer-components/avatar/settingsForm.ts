@@ -13,9 +13,7 @@ export const nutritionAnalyzerSettings = new DesignerToolbarSettings()
     propertyName: "propertyName",
     parentId: "root",
     label: "Property name",
-    validate: {
-      required: true,
-    },
+    validate: { required: true },
   })
   .addTextField({
     id: nanoid(),
@@ -77,7 +75,6 @@ export const nutritionAnalyzerSettings = new DesignerToolbarSettings()
     label: "Max File Size (MB)",
     description: "Enter a value between 1 and 100 MB",
   })
-
   .addTextField({
     id: nanoid(),
     propertyName: "acceptedFileTypes",

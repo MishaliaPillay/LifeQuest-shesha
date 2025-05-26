@@ -26,7 +26,7 @@ import {
 import {
   INutritionAnalyzerProps,
   AnalysisResult,
-} from "../../designer-components/avatar/types"; // Adjust path if needed
+} from "../../designer-components/avatar/types";
 import { nutritionAnalyzerSettings } from "../../designer-components/avatar/settingsForm";
 import {
   speakText,
@@ -38,12 +38,12 @@ const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 const { TextArea } = Input;
 
-// Mock async analysis function — replace with your actual API call
-const analyzeFoodImage = async (
+// Mock async analysis function - replace with real API call
+async function analyzeFoodImage(
   image: File,
   prompt: string = "",
   customInstructions: string = ""
-): Promise<AnalysisResult> => {
+): Promise<AnalysisResult> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
@@ -58,7 +58,7 @@ const analyzeFoodImage = async (
       });
     }, 2000);
   });
-};
+}
 
 export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
   props
@@ -81,13 +81,15 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
   const [prompt, setPrompt] = useState<string>("");
   const [analysis, setAnalysis] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [structuredData, setStructuredData] = useState<any>(null);
+  const [structuredData, setStructuredData] = useState<
+    AnalysisResult["structured"] | null
+  >(null);
 
   const handleImageChange = (info: any) => {
     const { status } = info.file;
 
     if (status === "done") {
-      const file = info.file.originFileObj;
+      const file = info.file.originFileObj as File;
 
       if (validateImageFile(file, maxFileSize)) {
         setSelectedImage(file);
@@ -119,16 +121,15 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
       const combinedPrompt = [analysisPrompt, prompt, customInstructions]
         .filter(Boolean)
         .join(" ");
+
       const result = await analyzeFoodImage(selectedImage, combinedPrompt);
+
       setAnalysis(result.fullText);
-      if (showStructuredData) {
-        setStructuredData(result.structured);
-      }
+      if (showStructuredData) setStructuredData(result.structured);
+
       message.success("Analysis completed successfully");
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Analysis failed";
-      message.error(errorMessage);
+      message.error(error instanceof Error ? error.message : "Analysis failed");
     } finally {
       setIsLoading(false);
     }
@@ -147,7 +148,6 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
   return (
     <ConfigurableFormItem model={props}>
       {(value, onChange) => {
-        console.log("onChange:", onChange);
         useEffect(() => {
           if (analysis && structuredData && typeof onChange === "function") {
             onChange({
@@ -157,6 +157,8 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
               timestamp: new Date().toISOString(),
             });
           }
+          // We intentionally omit onChange in deps to avoid infinite loops
+          // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [analysis, structuredData, selectedImage]);
 
         return (
@@ -170,7 +172,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
             {title && (
               <Title
                 level={3}
-                style={{ marginBottom: "16px", textAlign: "center" }}
+                style={{ marginBottom: 16, textAlign: "center" }}
               >
                 {title}
               </Title>
@@ -178,7 +180,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
 
             <Divider />
 
-            <Dragger {...uploadProps} style={{ marginBottom: "16px" }}>
+            <Dragger {...uploadProps} style={{ marginBottom: 16 }}>
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
               </p>
@@ -193,7 +195,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={placeholder}
               rows={3}
-              style={{ marginBottom: "16px" }}
+              style={{ marginBottom: 16 }}
             />
 
             <Button
@@ -202,7 +204,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
               disabled={isLoading || !selectedImage}
               size="large"
               block
-              style={{ marginBottom: "16px" }}
+              style={{ marginBottom: 16 }}
             >
               {isLoading ? <Spin size="small" /> : "Analyze Image"}
             </Button>
@@ -214,7 +216,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
                     <EyeOutlined /> Image Preview
                   </>
                 }
-                style={{ marginBottom: "16px" }}
+                style={{ marginBottom: 16 }}
                 bodyStyle={{ textAlign: "center" }}
               >
                 <img
@@ -222,26 +224,29 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
                   alt="Preview"
                   style={{
                     maxWidth: "100%",
-                    maxHeight: "300px",
+                    maxHeight: 300,
                     objectFit: "contain",
-                    borderRadius: "4px",
+                    borderRadius: 4,
                   }}
                 />
               </Card>
             )}
 
             {analysis && (
-              <Card title="Analysis Results" style={{ marginBottom: "16px" }}>
+              <Card title="Analysis Results" style={{ marginBottom: 16 }}>
                 <Paragraph style={{ whiteSpace: "pre-wrap" }}>
                   {analysis}
                 </Paragraph>
+
                 <Divider />
-                <Text type="secondary" style={{ fontSize: "12px" }}>
+
+                <Text type="secondary" style={{ fontSize: 12 }}>
                   <strong>Disclaimer:</strong> This analysis is for
                   informational purposes only and does not constitute
                   professional nutritional advice.
                 </Text>
-                <div style={{ marginTop: "16px" }}>
+
+                <div style={{ marginTop: 16 }}>
                   <Space>
                     {enablePdfDownload && (
                       <Button
@@ -259,6 +264,7 @@ export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
                         Download PDF
                       </Button>
                     )}
+
                     {enableTextToSpeech && (
                       <Button
                         icon={<SoundOutlined />}
@@ -302,9 +308,9 @@ const NutritionAnalyzerComponent: IToolboxComponent<INutritionAnalyzerProps> = {
   name: "Nutrition Analyzer",
   icon: <CameraOutlined />,
 
-  Factory: ({ model }: ComponentFactoryArguments<INutritionAnalyzerProps>) => {
-    return <NutritionAnalyzerUI {...model} />;
-  },
+  Factory: ({ model }: ComponentFactoryArguments<INutritionAnalyzerProps>) => (
+    <NutritionAnalyzerUI {...model} />
+  ),
 
   initModel: (model) => ({
     ...model,

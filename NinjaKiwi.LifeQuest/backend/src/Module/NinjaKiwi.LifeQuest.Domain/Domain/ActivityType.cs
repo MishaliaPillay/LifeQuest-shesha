@@ -19,7 +19,7 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         /// </summary>
         public virtual int Calories { get; set; }
         /// <summary>
-        /// The description of exercise
+        /// The description of e xercise
         /// </summary>
         public virtual string Description { get; set; }
         /// <summary>
