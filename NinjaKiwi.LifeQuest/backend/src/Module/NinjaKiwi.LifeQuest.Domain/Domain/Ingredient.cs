@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities;
 using Abp.Domain.Entities.Auditing;
 using Shesha.Domain.Attributes;
 
 namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
+    [Table("LifQu_Ingredients")]
     [Entity(TypeShortAlias = "LifQu.Ingredient")]
     public class Ingredient : Entity<Guid>
     {  /// <summary>
@@ -33,8 +35,9 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         /// </summary>
         public virtual int Fat { get; set; }
 
+
     }
 
-  
+
 
 }

@@ -3,28 +3,23 @@ using Shesha.FluentMigrator;
 
 namespace NinjaKiwi.LifeQuest.Domain.Migrations
 {
-    [Migration(20250525084722)]
-    public class M20250525084722_Add_Meals_And_MealIngredients : Migration
+    [Migration(20250525084727)]
+    public class M20250525084727_Add_Meals_And_MealIngredients : Migration
     {
         public override void Up()
         {
-            // Meals table
             Create.Table("LifQu_Meals")
-                .WithColumn("Id").AsGuid().PrimaryKey().NotNullable()
-                .WithColumn("Name").AsString(250).NotNullable()
-                .WithColumn("Description").AsString(int.MaxValue).Nullable()
-                .WithColumn("Calories").AsInt32().NotNullable()
-                .WithColumn("Score").AsInt32().NotNullable()
-                .WithColumn("IsComplete").AsBoolean().NotNullable()
+    .WithIdAsGuid()
+    .WithCreationAuditColumns()
+    .WithModificationAuditColumns()
+    .WithDeletionAuditColumns()
+    .WithColumn("Name").AsString(250).NotNullable()
+    .WithColumn("Description").AsString(int.MaxValue).Nullable()
+    .WithColumn("Calories").AsInt32().NotNullable()
+    .WithColumn("Score").AsInt32().NotNullable()
+    .WithColumn("IsComplete").AsBoolean().NotNullable();
 
-                // Auditing columns
-                .WithColumn("CreationTime").AsDateTime().NotNullable()
-                .WithColumn("CreatorId").AsGuid().Nullable()
-                .WithColumn("LastModificationTime").AsDateTime().Nullable()
-                .WithColumn("LastModifierId").AsGuid().Nullable()
-                .WithColumn("IsDeleted").AsBoolean().NotNullable().WithDefaultValue(false)
-                .WithColumn("DeleterId").AsGuid().Nullable()
-                .WithColumn("DeletionTime").AsDateTime().Nullable();
+
 
             // MealIngredient table
             Create.Table("LifQu_MealIngredients")

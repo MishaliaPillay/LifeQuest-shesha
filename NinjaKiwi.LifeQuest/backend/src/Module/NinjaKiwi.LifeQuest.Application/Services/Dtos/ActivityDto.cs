@@ -17,5 +17,4 @@ namespace NinjaKiwi.LifeQuest.Common.Services.Dtos
 
         public List<Guid> ActivityTypeIds { get; set; } = new();
     }
-
 }

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities.Auditing;
 using Shesha.Domain.Attributes;
 
 namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
+    [Table("LifQu_Meals")]
     [Entity(TypeShortAlias = "LifQu.Meals")]
-    public class Meals : FullAuditedEntity<Guid>
+    public class Meal : FullAuditedEntity<Guid>
     {
 
         /// <summary>
@@ -31,9 +33,11 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         public virtual bool IsComplete { get; set; }
         public virtual ICollection<MealIngredient> MealIngredients { get; set; }
 
-
+        public Meal()
+        {
+            MealIngredients = new List<MealIngredient>();
+        }
     }
-
 
 
 }
