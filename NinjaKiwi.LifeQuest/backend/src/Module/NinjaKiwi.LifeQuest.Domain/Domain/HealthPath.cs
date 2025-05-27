@@ -13,6 +13,6 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
     {
         public virtual ICollection<MealPlan> MealPlans { get; set; } = new List<MealPlan>();
 
-        public virtual ICollection<WeightEntry> WeightEntries { get; set; } = new List<WeightEntry>();
+
     }
 }

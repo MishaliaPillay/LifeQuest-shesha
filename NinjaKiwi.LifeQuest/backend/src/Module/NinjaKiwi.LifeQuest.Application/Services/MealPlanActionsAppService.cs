@@ -10,7 +10,6 @@ using NHibernate.Linq;
 using NinjaKiwi.LifeQuest.Common.Services.Dtos;
 using NinjaKiwi.LifeQuest.Domain.Domain;
 using NinjaKiwi.LifeQuest.Domain;
-using DocumentFormat.OpenXml.Bibliography;
 
 namespace NinjaKiwi.LifeQuest.Common.Services
 {
@@ -20,10 +19,11 @@ namespace NinjaKiwi.LifeQuest.Common.Services
         private readonly IRepository<Meal, Guid> _mealRepo;
         private readonly IRepository<MealPlanDay, Guid> _mealPlanDayRepo;
         private readonly IRepository<MealPlanDayMeal, Guid> _mealPlanDayMealRepo;
+        private readonly IRepository<MealPlanMeal, Guid> _mealPlanMealRepo;
         private readonly IRepository<MealIngredient, Guid> _mealIngredientRepo;
         private readonly IRepository<Ingredient, Guid> _ingredientRepo;
+        private readonly IRepository<HealthPath, Guid> _healthPathRepo;
         private readonly ILogger<MealPlanAppService> _logger;
-        private readonly IRepository<MealPlanMeal, Guid> _mealPlanMealRepo;
 
         public MealPlanAppService(
             IRepository<MealPlan, Guid> planRepo,
@@ -33,6 +33,7 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             IRepository<MealPlanMeal, Guid> mealPlanMealRepo,
             IRepository<MealIngredient, Guid> mealIngredientRepo,
             IRepository<Ingredient, Guid> ingredientRepo,
+            IRepository<HealthPath, Guid> healthPathRepo,
             ILogger<MealPlanAppService> logger)
         {
             _planRepo = planRepo;
@@ -42,18 +43,17 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             _mealPlanMealRepo = mealPlanMealRepo;
             _mealIngredientRepo = mealIngredientRepo;
             _ingredientRepo = ingredientRepo;
+            _healthPathRepo = healthPathRepo;
             _logger = logger;
         }
 
         public async Task<MealPlanDto> CreateAsync(CreateMealPlanDto input)
         {
-            // Gather all unique meal IDs from the meal plan days
             var allMealIds = input.MealPlanDays?
                 .SelectMany(d => d.Meals)
                 .Distinct()
                 .ToList() ?? new List<Guid>();
 
-            // Fetch all required meals
             var meals = await _mealRepo.GetAll()
                 .Where(m => allMealIds.Contains(m.Id))
                 .ToListAsync();
@@ -61,7 +61,6 @@ namespace NinjaKiwi.LifeQuest.Common.Services
             if (meals.Count != allMealIds.Count)
                 throw new UserFriendlyException("Some meals in meal plan days were not found.");
 
-            // Create the new MealPlan
             var plan = new MealPlan
             {
                 Id = Guid.NewGuid(),
@@ -70,15 +69,23 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                 MealPlanDays = new List<MealPlanDay>()
             };
 
-            // Insert the meal plan first
-            await _planRepo.InsertAsync(plan);
+            if (input.HealthPathId.HasValue)
+            {
+                var path = await _healthPathRepo.FirstOrDefaultAsync(input.HealthPathId.Value);
+                if (path == null)
+                    throw new UserFriendlyException("HealthPath not found.");
 
-            // Force save changes to ensure the plan is persisted
+                plan.HealthPathId = input.HealthPathId.Value; // Set the FK directly
+                plan.HealthPath = path; // Optional: set navigation property
+            }
+
+            await _planRepo.InsertAsync(plan);
             await CurrentUnitOfWork.SaveChangesAsync();
 
-            // Create Meal Plan Days separately
             if (input.MealPlanDays != null)
             {
+                var mealDict = meals.ToDictionary(m => m.Id);
+
                 foreach (var day in input.MealPlanDays.OrderBy(d => d.Order))
                 {
                     var mealPlanDay = new MealPlanDay
@@ -90,17 +97,11 @@ namespace NinjaKiwi.LifeQuest.Common.Services
                         MealPlanDayMeals = new List<MealPlanDayMeal>()
                     };
 
-                    // Insert the meal plan day first
                     await _mealPlanDayRepo.InsertAsync(mealPlanDay);
 
-                    // Force save to ensure the day is persisted
-                    await CurrentUnitOfWork.SaveChangesAsync();
-
-                    // Create meal plan day meals separately
                     foreach (var mealId in day.Meals)
                     {
-                        var meal = meals.FirstOrDefault(m => m.Id == mealId);
-                        if (meal == null)
+                        if (!mealDict.TryGetValue(mealId, out var meal))
                             throw new UserFriendlyException($"Meal with ID {mealId} not found.");
 
                         var mealPlanDayMeal = new MealPlanDayMeal
@@ -116,31 +117,25 @@ namespace NinjaKiwi.LifeQuest.Common.Services
 
                     plan.MealPlanDays.Add(mealPlanDay);
                 }
+
+                await CurrentUnitOfWork.SaveChangesAsync();
             }
 
-            // Force final save
-            await CurrentUnitOfWork.SaveChangesAsync();
-
-            // Reload the plan from database to ensure all relationships are properly loaded
+            // Reload the saved plan with all navigation properties to return DTO
             var savedPlan = await _planRepo.FirstOrDefaultAsync(p => p.Id == plan.Id);
             if (savedPlan == null)
                 throw new UserFriendlyException("Failed to retrieve the created meal plan.");
 
-            // Load all relationships manually for the DTO mapping
             await _planRepo.EnsureCollectionLoadedAsync(savedPlan, p => p.MealPlanDays);
-
             foreach (var day in savedPlan.MealPlanDays ?? new List<MealPlanDay>())
             {
                 await _mealPlanDayRepo.EnsureCollectionLoadedAsync(day, d => d.MealPlanDayMeals);
-
                 foreach (var dayMeal in day.MealPlanDayMeals ?? new List<MealPlanDayMeal>())
                 {
                     await _mealPlanDayMealRepo.EnsurePropertyLoadedAsync(dayMeal, dm => dm.Meal);
-
                     if (dayMeal.Meal != null)
                     {
                         await _mealRepo.EnsureCollectionLoadedAsync(dayMeal.Meal, m => m.MealIngredients);
-
                         foreach (var mi in dayMeal.Meal.MealIngredients ?? new List<MealIngredient>())
                         {
                             await _mealIngredientRepo.EnsurePropertyLoadedAsync(mi, i => i.Ingredient);

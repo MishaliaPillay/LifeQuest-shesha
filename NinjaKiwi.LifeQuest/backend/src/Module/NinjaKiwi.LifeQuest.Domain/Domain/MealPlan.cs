@@ -12,6 +12,8 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
     {
         public string Name { get; set; }
         public MealPlanStatus Status { get; set; }
+        public Guid HealthPathId { get; set; }
+        public virtual HealthPath HealthPath { get; set; }
         public DateTime CreationTime { get; set; }
         public DateTime? CompletedAt { get; set; }
 

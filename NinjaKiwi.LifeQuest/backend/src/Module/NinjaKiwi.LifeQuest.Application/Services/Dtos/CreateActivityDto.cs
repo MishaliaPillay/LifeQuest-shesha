@@ -20,5 +20,4 @@ namespace NinjaKiwi.LifeQuest.Common.Services.Dtos
         // This replaces the nested list of ActivityActivityTypes
         public List<Guid> ActivityTypeIds { get; set; } = new();
     }
-
 }
