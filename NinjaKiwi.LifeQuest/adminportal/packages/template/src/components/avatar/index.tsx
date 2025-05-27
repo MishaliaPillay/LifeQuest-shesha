@@ -33,32 +33,10 @@ import {
   downloadReportAsPDF,
   validateImageFile,
 } from "../../../../../utils/pdf";
-
+import { analyzeFoodImage } from "../../../../../utils/gemini-service";
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 const { TextArea } = Input;
-
-// Mock async analysis function - replace with real API call
-async function analyzeFoodImage(
-  image: File,
-  prompt: string = "",
-  customInstructions: string = ""
-): Promise<AnalysisResult> {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        fullText: `This appears to be a nutritious meal containing various food items. Based on the analysis, this meal provides balanced nutrition with an estimated calorie content. The food items appear fresh and well-prepared. ${
-          prompt ? `Additional context: ${prompt}` : ""
-        }`,
-        structured: {
-          totalCalories: 450,
-          healthScore: 8,
-          foodItems: ["Vegetables", "Protein", "Grains"],
-        },
-      });
-    }, 2000);
-  });
-}
 
 export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
   props
