@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Abp.Domain.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using NHibernate.Linq;
 using NinjaKiwi.LifeQuest.Common.Services.Dtos;
 using NinjaKiwi.LifeQuest.Domain.Domain;
 using Shesha;
@@ -16,14 +17,18 @@ namespace NinjaKiwi.LifeQuest.Services.Meals
 
         private readonly IRepository<Meal, Guid> _mealRepository;
         private readonly IRepository<MealIngredient, Guid> _mealIngredientRepository;
+        private readonly IRepository<MealPlanMeal, Guid> _mealPlanMealRepository;
 
         public MealActionsAppService(
             IRepository<Meal, Guid> mealRepository,
-            IRepository<MealIngredient, Guid> mealIngredientRepository)
+            IRepository<MealIngredient, Guid> mealIngredientRepository,
+            IRepository<MealPlanMeal, Guid> mealPlanMealRepository)
         {
             _mealRepository = mealRepository;
             _mealIngredientRepository = mealIngredientRepository;
+            _mealPlanMealRepository = mealPlanMealRepository;
         }
+
 
         [HttpPost, Route("api/app/meal-actions/create")]
         public async Task<MealDto> CreateMealAsync([FromBody] CreateMealDto input)
@@ -84,6 +89,10 @@ namespace NinjaKiwi.LifeQuest.Services.Meals
             }
         }
 
+
+
+
+
         [HttpGet, Route("api/app/meal-actions/get-by-id/{id}")]
         public async Task<MealDto> GetMealByIdAsync(Guid id)
         {
@@ -101,6 +110,7 @@ namespace NinjaKiwi.LifeQuest.Services.Meals
             };
         }
 
+
         [HttpGet, Route("api/app/meal-actions/get-all")]
         public async Task<List<MealDto>> GetAllMealsAsync()
         {
@@ -116,6 +126,46 @@ namespace NinjaKiwi.LifeQuest.Services.Meals
                 IsComplete = meal.IsComplete,
                 IngredientIds = meal.MealIngredients?.Select(x => x.IngredientId).ToList() ?? new List<Guid>()
             }).ToList();
+        }
+
+
+        [HttpGet, Route("api/app/meal-actions/get-by-meal-plan-id/{mealPlanId}")]
+        public async Task<List<MealDto>> GetByMealPlanIdAsync(Guid mealPlanId)
+        {
+            try
+            {
+                // Get all MealPlanMeal entries for the given meal plan using GetAllListAsync
+                var mealPlanMeals = await _mealPlanMealRepository.GetAllListAsync();
+                var filteredMealPlanMeals = mealPlanMeals.Where(mpm => mpm.MealPlanId == mealPlanId).ToList();
+
+                if (!filteredMealPlanMeals.Any())
+                {
+                    return new List<MealDto>();
+                }
+
+                // Extract meal IDs
+                var mealIds = filteredMealPlanMeals.Select(mpm => mpm.MealId).ToList();
+
+                // Get all meals that belong to this meal plan using GetAllListAsync
+                var allMeals = await _mealRepository.GetAllListAsync();
+                var meals = allMeals.Where(m => mealIds.Contains(m.Id)).ToList();
+
+                return meals.Select(meal => new MealDto
+                {
+                    Id = meal.Id,
+                    Name = meal.Name,
+                    Description = meal.Description,
+                    Calories = meal.Calories,
+                    Score = meal.Score,
+                    IsComplete = meal.IsComplete,
+                    IngredientIds = meal.MealIngredients?.Select(x => x.IngredientId).ToList() ?? new List<Guid>()
+                }).ToList();
+            }
+            catch (Exception ex)
+            {
+                Logger.Error("GetByMealPlanIdAsync failed", ex);
+                throw;
+            }
         }
     }
 }

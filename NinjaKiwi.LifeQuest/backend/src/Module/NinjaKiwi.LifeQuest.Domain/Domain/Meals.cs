@@ -32,6 +32,10 @@ namespace NinjaKiwi.LifeQuest.Domain.Domain
         /// </summary>
         public virtual bool IsComplete { get; set; }
         public virtual ICollection<MealIngredient> MealIngredients { get; set; }
+        public virtual ICollection<MealPlanMeal> MealPlanMeals { get; set; } = new List<MealPlanMeal>();
+        public virtual Guid? MealPlanId { get; set; }
+
+        public virtual MealPlan MealPlan { get; set; }
 
         public Meal()
         {

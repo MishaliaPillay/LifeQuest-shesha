@@ -35,6 +35,7 @@ namespace NinjaKiwi.LifeQuest.Domain
         /// If the meal plan day is completed
         /// </summary>
         public virtual bool IsComplete { get; set; }
+        public virtual MealPlan MealPlan { get; set; }
 
         /// <summary>
         /// Collection of meals for this day
