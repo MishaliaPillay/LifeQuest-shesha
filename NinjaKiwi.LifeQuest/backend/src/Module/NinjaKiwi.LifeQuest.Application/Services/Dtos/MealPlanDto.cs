@@ -16,5 +16,4 @@ namespace NinjaKiwi.LifeQuest.Common.Services.Dtos
         public MealPlanStatus Status { get; set; }
         public List<MealDto> Meals { get; set; }
     }
-
 }
