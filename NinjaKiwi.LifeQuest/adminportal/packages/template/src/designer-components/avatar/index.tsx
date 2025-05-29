@@ -18,7 +18,22 @@ const ImageScanComponent: IToolboxComponent<IImageScanAvatar> = {
   icon: <BookOutlined />,
 
   Factory: ({ model }) => {
-    return <PersonAnalyzerUI title={""} enablePdfDownload={false} enableTextToSpeech={false} showImagePreview={false} showStructuredData={false} maxFileSize={0} placeholder={""} acceptedFileTypes={""} analysisPrompt={""} customInstructions={""} {...model} />;
+    return (
+      <PersonAnalyzerUI
+        playerId={""}
+        title={""}
+        enablePdfDownload={false}
+        enableTextToSpeech={false}
+        showImagePreview={false}
+        showStructuredData={false}
+        maxFileSize={0}
+        placeholder={""}
+        acceptedFileTypes={""}
+        analysisPrompt={""}
+        customInstructions={""}
+        {...model}
+      />
+    );
   },
 
   settingsFormMarkup: () => personAnalyzerSettings,

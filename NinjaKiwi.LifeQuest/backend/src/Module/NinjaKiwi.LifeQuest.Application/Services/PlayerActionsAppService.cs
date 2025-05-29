@@ -27,7 +27,7 @@ namespace NinjaKiwi.LifeQuest.Services.Players
             _logger = logger;
         }
 
-        [HttpPost, Route("api/app/player-actions/update-description")]
+        [HttpPut, Route("api/app/player-actions/update-description")]
         public async Task<PlayerDto> UpdateAvatarDescriptionAsync([FromBody] UpdateAvatarDescriptionDto input)
         {
             var player = await _playerRepository.GetAsync(input.PlayerId);

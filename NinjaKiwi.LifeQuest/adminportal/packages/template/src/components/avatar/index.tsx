@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   CameraOutlined,
-  DownloadOutlined,
   InboxOutlined,
   SoundOutlined,
   EyeOutlined,
@@ -28,30 +27,25 @@ import {
   AnalysisResult,
 } from "../../designer-components/avatar/types";
 import { personAnalyzerSettings } from "../../designer-components/avatar/settingsForm";
-import {
-  speakText,
-  downloadReportAsPDF,
-  validateImageFile,
-} from "../../../../../utils/pdf";
-import { analyzeFoodImage } from "../../../../../utils/gemini-service";
+import { speakText, validateImageFile } from "../../../../../utils/pdf";
+import { analyzePersonImage } from "../../../../../utils/avatar-service";
+
 const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 const { TextArea } = Input;
 
-export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
-  props
-) => {
+export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (props) => {
   const {
     title = "Person Image Analyzer",
-    enablePdfDownload = true,
     enableTextToSpeech = true,
     showImagePreview = true,
     showStructuredData = true,
     maxFileSize = 10,
-    placeholder = "Provide additional context about the food image (e.g., meal type, dietary restrictions)",
+    placeholder = "Provide additional context about the person image",
     acceptedFileTypes = ".jpg,.jpeg,.png,.webp",
     analysisPrompt = "",
     customInstructions = "",
+    playerId, // <--- Get playerId directly from props
   } = props;
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -59,6 +53,7 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
   const [prompt, setPrompt] = useState<string>("");
   const [analysis, setAnalysis] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
   const [structuredData, setStructuredData] = useState<
     AnalysisResult["structured"] | null
   >(null);
@@ -100,16 +95,60 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
         .filter(Boolean)
         .join(" ");
 
-      const result = await analyzeFoodImage(selectedImage, combinedPrompt);
+      const result = await analyzePersonImage(selectedImage);
 
-      setAnalysis(result.fullText);
-      if (showStructuredData) setStructuredData(result.structured);
+      setAnalysis(result); // assume string result
+
+      if (showStructuredData) setStructuredData(null);
 
       message.success("Analysis completed successfully");
     } catch (error) {
       message.error(error instanceof Error ? error.message : "Analysis failed");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Send description to API
+  const handleSendDescription = async () => {
+    if (!playerId) {
+      message.error(
+        "Player ID is missing. Please configure the Player ID in the component settings."
+      );
+      return;
+    }
+    if (!analysis) {
+      message.warning("No analysis to send.");
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const response = await fetch(
+        "https://localhost:44362/api/app/player-actions/update-description",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            playerId,
+            description: analysis,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to send description: ${response.statusText}`);
+      }
+
+      message.success("Description sent successfully");
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : "Failed to send description"
+      );
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -135,7 +174,6 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
               timestamp: new Date().toISOString(),
             });
           }
-          // We intentionally omit onChange in deps to avoid infinite loops
           // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [analysis, structuredData, selectedImage]);
 
@@ -187,6 +225,44 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
               {isLoading ? <Spin size="small" /> : "Analyze Image"}
             </Button>
 
+            {analysis && (
+              <Card title="Analysis Results" style={{ marginBottom: 16 }}>
+                <Paragraph style={{ whiteSpace: "pre-wrap" }}>
+                  {analysis}
+                </Paragraph>
+
+                <Divider />
+
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  <strong>Disclaimer:</strong> This analysis is for
+                  informational purposes only and does not constitute
+                  professional advice.
+                </Text>
+
+                <div style={{ marginTop: 16 }}>
+                  <Space>
+                    {enableTextToSpeech && (
+                      <Button
+                        icon={<SoundOutlined />}
+                        onClick={() => speakText(analysis)}
+                      >
+                        Read Aloud
+                      </Button>
+                    )}
+
+                    <Button
+                      type="primary"
+                      onClick={handleSendDescription}
+                      loading={isSending}
+                      disabled={!analysis || isSending}
+                    >
+                      Send Description
+                    </Button>
+                  </Space>
+                </div>
+              </Card>
+            )}
+
             {showImagePreview && imagePreview && (
               <Card
                 title={
@@ -207,52 +283,6 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
                     borderRadius: 4,
                   }}
                 />
-              </Card>
-            )}
-
-            {analysis && (
-              <Card title="Analysis Results" style={{ marginBottom: 16 }}>
-                <Paragraph style={{ whiteSpace: "pre-wrap" }}>
-                  {analysis}
-                </Paragraph>
-
-                <Divider />
-
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  <strong>Disclaimer:</strong> This analysis is for
-                  informational purposes only and does not constitute
-                  professional Personal advice.
-                </Text>
-
-                <div style={{ marginTop: 16 }}>
-                  <Space>
-                    {enablePdfDownload && (
-                      <Button
-                        type="primary"
-                        icon={<DownloadOutlined />}
-                        onClick={() =>
-                          downloadReportAsPDF(
-                            analysis,
-                            imagePreview,
-                            undefined,
-                            title
-                          )
-                        }
-                      >
-                        Download PDF
-                      </Button>
-                    )}
-
-                    {enableTextToSpeech && (
-                      <Button
-                        icon={<SoundOutlined />}
-                        onClick={() => speakText(analysis)}
-                      >
-                        Read Aloud
-                      </Button>
-                    )}
-                  </Space>
-                </div>
               </Card>
             )}
 
@@ -293,17 +323,15 @@ const PersonAnalyzerComponent: IToolboxComponent<IPersonAnalyzerProps> = {
   initModel: (model) => ({
     ...model,
     title: "Person Image Analyzer",
-    enablePdfDownload: true,
     enableTextToSpeech: true,
     showImagePreview: true,
     showStructuredData: true,
     maxFileSize: 10,
-    placeholder:
-      "Provide additional context about the food image (e.g., meal type, dietary restrictions)",
+    placeholder: "Provide additional context about the person in the image",
     acceptedFileTypes: ".jpg,.jpeg,.png,.webp",
-    analysisPrompt:
-      "Analyze this food image for Personal content, calories, and health recommendations.",
+    analysisPrompt: "Analyze this person and give a description",
     customInstructions: "",
+    playerId: "", // <--- Add default value for playerId
   }),
 
   settingsFormMarkup: personAnalyzerSettings,

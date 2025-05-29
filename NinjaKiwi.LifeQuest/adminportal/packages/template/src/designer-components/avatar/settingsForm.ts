@@ -8,6 +8,14 @@ export const personAnalyzerSettings = new DesignerToolbarSettings()
     parentId: "root",
     label: "Display Settings",
   })
+  .addTextField({
+    id: nanoid(),
+    propertyName: "playerId", // <--- Add this property here
+    parentId: "root",
+    label: "Player ID", // <--- User will input Player ID here
+    description:
+      "Enter the Player's unique ID to pass into the component settings",
+  })
   .addContextPropertyAutocomplete({
     id: nanoid(),
     propertyName: "propertyName",

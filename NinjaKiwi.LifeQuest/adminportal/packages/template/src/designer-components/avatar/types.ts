@@ -11,6 +11,7 @@ export interface IPersonAnalyzerProps extends IConfigurableFormComponent {
   acceptedFileTypes: string;
   analysisPrompt: string;
   customInstructions: string;
+  playerId: string; // <--- Add playerId to the interface
 }
 
 export interface StructuredAnalysisData {
