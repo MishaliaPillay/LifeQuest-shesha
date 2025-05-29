@@ -1,7 +1,7 @@
 import { DesignerToolbarSettings } from "@shesha-io/reactjs";
 import { nanoid } from "nanoid";
 
-export const personAnalyzerSettings = new DesignerToolbarSettings()
+export const nutritionAnalyzerSettings = new DesignerToolbarSettings()
   .addSectionSeparator({
     id: nanoid(),
     propertyName: "displaySection",

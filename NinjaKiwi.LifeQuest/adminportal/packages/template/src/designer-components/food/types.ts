@@ -1,6 +1,6 @@
 import { IConfigurableFormComponent } from '@shesha-io/reactjs';
 
-export interface IPersonAnalyzerProps extends IConfigurableFormComponent {
+export interface INutritionAnalyzerProps extends IConfigurableFormComponent {
   title: string;
   enablePdfDownload: boolean;
   enableTextToSpeech: boolean;

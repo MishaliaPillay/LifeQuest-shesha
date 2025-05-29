@@ -54,7 +54,7 @@ namespace NinjaKiwi.LifeQuest.Services.Players
                 ? defaultPrompt
                 : $"{defaultPrompt}, {player.AvatarDescription}";
 
-            var apiKey = Environment.GetEnvironmentVariable("AVATAR_API_KEY");
+            var apiKey = "ELh4suii1gOEawyWXupJ61u039bioRAs0zs9aXCTxjXMuDaYkccACdrq5jIG";
             if (string.IsNullOrWhiteSpace(apiKey))
                 throw new UserFriendlyException("API key is not configured.");
 

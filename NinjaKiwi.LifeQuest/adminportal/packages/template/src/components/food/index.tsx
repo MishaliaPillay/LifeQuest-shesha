@@ -24,10 +24,10 @@ import {
   Input,
 } from "antd";
 import {
-  IPersonAnalyzerProps,
+  INutritionAnalyzerProps,
   AnalysisResult,
-} from "../../designer-components/avatar/types";
-import { personAnalyzerSettings } from "../../designer-components/avatar/settingsForm";
+} from "../../designer-components/food/types";
+import { nutritionAnalyzerSettings } from "../../designer-components/food/settingsForm";
 import {
   speakText,
   downloadReportAsPDF,
@@ -38,11 +38,11 @@ const { Title, Text, Paragraph } = Typography;
 const { Dragger } = Upload;
 const { TextArea } = Input;
 
-export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
+export const NutritionAnalyzerUI: React.FC<INutritionAnalyzerProps> = (
   props
 ) => {
   const {
-    title = "Person Image Analyzer",
+    title = "Nutrition Image Analyzer",
     enablePdfDownload = true,
     enableTextToSpeech = true,
     showImagePreview = true,
@@ -221,7 +221,7 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   <strong>Disclaimer:</strong> This analysis is for
                   informational purposes only and does not constitute
-                  professional Personal advice.
+                  professional nutritional advice.
                 </Text>
 
                 <div style={{ marginTop: 16 }}>
@@ -281,18 +281,18 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (
   );
 };
 
-const PersonAnalyzerComponent: IToolboxComponent<IPersonAnalyzerProps> = {
-  type: "personAnalyzer",
-  name: "Person Analyzer",
+const NutritionAnalyzerComponent: IToolboxComponent<INutritionAnalyzerProps> = {
+  type: "nutritionAnalyzer",
+  name: "Nutrition Analyzer",
   icon: <CameraOutlined />,
 
-  Factory: ({ model }: ComponentFactoryArguments<IPersonAnalyzerProps>) => (
-    <PersonAnalyzerUI {...model} />
+  Factory: ({ model }: ComponentFactoryArguments<INutritionAnalyzerProps>) => (
+    <NutritionAnalyzerUI {...model} />
   ),
 
   initModel: (model) => ({
     ...model,
-    title: "Person Image Analyzer",
+    title: "Nutrition Image Analyzer",
     enablePdfDownload: true,
     enableTextToSpeech: true,
     showImagePreview: true,
@@ -302,15 +302,15 @@ const PersonAnalyzerComponent: IToolboxComponent<IPersonAnalyzerProps> = {
       "Provide additional context about the food image (e.g., meal type, dietary restrictions)",
     acceptedFileTypes: ".jpg,.jpeg,.png,.webp",
     analysisPrompt:
-      "Analyze this food image for Personal content, calories, and health recommendations.",
+      "Analyze this food image for nutritional content, calories, and health recommendations.",
     customInstructions: "",
   }),
 
-  settingsFormMarkup: personAnalyzerSettings,
+  settingsFormMarkup: nutritionAnalyzerSettings,
   validateSettings: (model) =>
-    validateConfigurableComponentSettings(personAnalyzerSettings, model),
+    validateConfigurableComponentSettings(nutritionAnalyzerSettings, model),
 
   isInput: false,
 };
 
-export default PersonAnalyzerComponent;
+export default NutritionAnalyzerComponent;

@@ -1,12 +1,12 @@
 //name the dropdown
 
 import { IToolboxComponentGroup } from "@shesha-io/reactjs";
-import ImageScan from "../components/avatar";
-
+import ImageScanAvatar from "../components/avatar";
+import ImageScan from "../components/food";
 export const formDesignerComponents: IToolboxComponentGroup[] = [
   {
     name: "Gemini",
-    components: [ImageScan],
+    components: [ImageScan, ImageScanAvatar],
     visible: true,
   },
 ];

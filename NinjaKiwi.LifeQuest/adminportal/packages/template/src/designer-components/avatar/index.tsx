@@ -4,13 +4,13 @@ import {
   IToolboxComponent,
   validateConfigurableComponentSettings,
 } from "@shesha-io/reactjs";
-import { NutritionAnalyzerUI } from "../../components/avatar";
-import { nutritionAnalyzerSettings } from "./settingsForm";
+import { PersonAnalyzerUI } from "../../components/avatar";
+import { personAnalyzerSettings } from "./settingsForm";
 import { BookOutlined } from "@ant-design/icons";
 
-interface IImageScan extends IConfigurableFormComponent {}
+interface IImageScanAvatar extends IConfigurableFormComponent {}
 
-const ImageScanComponent: IToolboxComponent<IImageScan> = {
+const ImageScanComponent: IToolboxComponent<IImageScanAvatar> = {
   type: "ImageScan",
   isInput: false,
   isOutput: true,
@@ -18,12 +18,12 @@ const ImageScanComponent: IToolboxComponent<IImageScan> = {
   icon: <BookOutlined />,
 
   Factory: ({ model }) => {
-    return <NutritionAnalyzerUI title={""} enablePdfDownload={false} enableTextToSpeech={false} showImagePreview={false} showStructuredData={false} maxFileSize={0} placeholder={""} acceptedFileTypes={""} analysisPrompt={""} customInstructions={""} {...model} />;
+    return <PersonAnalyzerUI title={""} enablePdfDownload={false} enableTextToSpeech={false} showImagePreview={false} showStructuredData={false} maxFileSize={0} placeholder={""} acceptedFileTypes={""} analysisPrompt={""} customInstructions={""} {...model} />;
   },
 
-  settingsFormMarkup: () => nutritionAnalyzerSettings,
+  settingsFormMarkup: () => personAnalyzerSettings,
   validateSettings: (model) =>
-    validateConfigurableComponentSettings(nutritionAnalyzerSettings, model),
+    validateConfigurableComponentSettings(personAnalyzerSettings, model),
 };
 
 export default ImageScanComponent;
