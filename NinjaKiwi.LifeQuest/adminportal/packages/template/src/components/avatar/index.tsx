@@ -110,6 +110,8 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (props) => {
   };
 
   // Send description to API
+  const MAX_DESCRIPTION_LENGTH = 500;
+
   const handleSendDescription = async () => {
     if (!playerId) {
       message.error(
@@ -117,10 +119,16 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (props) => {
       );
       return;
     }
+
     if (!analysis) {
       message.warning("No analysis to send.");
       return;
     }
+
+    const truncatedDescription =
+      analysis.length > MAX_DESCRIPTION_LENGTH
+        ? analysis.slice(0, MAX_DESCRIPTION_LENGTH) + "..."
+        : analysis;
 
     setIsSending(true);
     try {
@@ -133,7 +141,7 @@ export const PersonAnalyzerUI: React.FC<IPersonAnalyzerProps> = (props) => {
           },
           body: JSON.stringify({
             playerId,
-            description: analysis,
+            description: truncatedDescription,
           }),
         }
       );

@@ -47,7 +47,7 @@ export const analyzePersonImage = async (imageFile: File): Promise<string> => {
       - Keep it concise but specific enough to capture the person's unique look
 
       Do NOT include assumptions beyond what is clearly visible in the photo.
-
+Keep it under **300 characters**.
       Return ONLY the descriptive text to be used as a character design prompt without extra commentary.
     `;
 
