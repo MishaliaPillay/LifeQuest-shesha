@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using Abp.Domain.Entities.Auditing;
 using Shesha.Domain.Attributes;
-
+using NinjaKiwi.LifeQuest.Domain.Domain.Enums;
 namespace NinjaKiwi.LifeQuest.Domain.Domain
 {
     [Table("LifQu_Meals")]

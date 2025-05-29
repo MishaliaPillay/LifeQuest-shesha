@@ -113,6 +113,35 @@ namespace NinjaKiwi.LifeQuest.Common.Services
 
             return dtos;
         }
+        public async Task<List<PlayerHealthPathDto>> GetAllPlayersWithHealthPathAsync()
+        {
+            // Get all HealthPaths
+            var healthPaths = await _healthPathRepo.GetAllListAsync();
+            var healthPathIds = healthPaths.Select(hp => hp.Id).ToList();
+
+            // Get all Players with a SelectedPath that is a HealthPath
+            var players = await _playerRepo.GetAllListAsync(p =>
+                p.SelectedPath != null && healthPathIds.Contains(p.SelectedPath.Id)
+            );
+
+            // Only show valid players — example rule: must have FirstName
+            var validPlayers = players
+                .Where(p => !string.IsNullOrWhiteSpace(p.FirstName))
+                .ToList();
+
+            var result = validPlayers.Select(p =>
+            {
+                var healthPath = healthPaths.FirstOrDefault(hp => hp.Id == p.SelectedPath.Id);
+                return new PlayerHealthPathDto
+                {
+                    PlayerId = p.Id,
+                    FullName = $"{p.FirstName} {p.LastName}".Trim(),
+                    HealthPathTitle = healthPath?.Title
+                };
+            }).ToList();
+
+            return result;
+        }
 
 
         public async Task<HealthPathDto> UpdateAsync(UpdateHealthPathDto input)

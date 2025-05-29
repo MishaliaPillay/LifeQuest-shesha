@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace NinjaKiwi.LifeQuest.Common.Services.Dtos
 {
-    public class DayMealDto
+    public class UpdateAvatarDescriptionDto
     {
+        public Guid PlayerId { get; set; }
         public string Description { get; set; }
-        public List<Guid> MealIds { get; set; }
     }
+
 }
